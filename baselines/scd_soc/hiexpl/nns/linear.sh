@@ -1,0 +1,1 @@
+python linear_model.py --task sst --gpu 1 --save_path "./linear_models/" --epochs 20

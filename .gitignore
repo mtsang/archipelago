@@ -1,0 +1,7 @@
+downloads/*
+__pycache__
+cache
+*.bak
+*.pyc
+.data
+.ipynb_checkpoints
