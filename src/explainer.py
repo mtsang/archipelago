@@ -247,16 +247,26 @@ class Archipelago(Explainer):
                 # interaction detection
                 ell_i = np.abs(context[i].item() - insertion_target[i].item())
                 ell_j = np.abs(context[j].item() - insertion_target[j].item())
-                inter_scores[(i, j)] = (
-                    1
-                    / (ell_i * ell_j)
-                    * (
-                        context_score
-                        - idv_scores[(i,)]
-                        - idv_scores[(j,)]
-                        + pair_scores[(i, j)]
-                    )
-                )
+                f_a = context_score
+                f_b = idv_scores[(i,)]
+                f_c = idv_scores[(j,)]
+                f_d = pair_scores[(i, j)]
+                
+                numerator = f_a - f_b - f_c + f_d
+                denominator = ell_i * ell_j
+                
+                # The numerator should theorecially be zero when there aren't interactions 
+                # in the function f. However, it is possible that the numerator is not 
+                # exactly zero due to precision issues in the function call. Here, if all 
+                # f_x are much larger than and the existing numerator value in magitude,
+                # then we set the numerator to zero
+                if np.abs(numerator) / np.min(np.abs(np.array([f_a, f_b, f_c, f_d]))) < 1e-5:
+                    numerator = 0.0
+                    
+                if denominator == 0.0:
+                    inter_scores[(i, j)] = 0.0
+                else:
+                    inter_scores[(i, j)] = numerator / denominator
 
                 if (
                     get_pairwise_effects
